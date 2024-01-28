@@ -2,12 +2,13 @@ const textTodo = document.querySelector(".itemInput");
 const addTodo = document.querySelector(".addButton");
 const clearTodo = document.querySelector(".clearButton");
 const todosList = document.querySelector(".todoList");
-const addItem = document.querySelector(".addItem");
+const filterOption = document.querySelector(".filter-todo");
+
 let todosItem = [];
 const addTodos = () => {
   let todoValue = textTodo.value;
   let newTodo = {
-    id: todosItem.length+1,
+    id: todosItem.length + 1,
     title: todoValue,
     complete: false,
   };
@@ -15,9 +16,8 @@ const addTodos = () => {
   todosItem.push(newTodo);
   localStorage.setItem("todos", JSON.stringify(todosItem));
   todosProduction(todosItem);
-  console.log(todosItem);
 };
-let newTodoEditAddBtn
+let newTodoEditAddBtn;
 const todosProduction = (todos) => {
   todosList.innerHTML = "";
   todos.forEach(function (todo) {
@@ -36,7 +36,7 @@ const todosProduction = (todos) => {
     newTodoEditBtn.setAttribute("onclick", "editTodoItem(" + todo.id + ")");
     newTodoEditAddBtn = document.createElement("button");
     newTodoEditAddBtn.innerHTML = "addItem";
-    newTodoEditAddBtn.style.display="none"
+    newTodoEditAddBtn.style.display = "none";
     newTodoEditAddBtn.setAttribute("onclick", "addItems(" + todo.id + ")");
     if (todo.complete) {
       newTodoLiElem.className = "uncompleted well";
@@ -52,32 +52,64 @@ const todosProduction = (todos) => {
     todosList.append(newTodoLiElem);
   });
 };
-const addItems =(todoId)=>{
-  let localStorageTodos = JSON.parse(localStorage.getItem("todos"));
-  todosItem = localStorageTodos;
-  todosItem.forEach((todo) => {
-    if (todo.id === todoId) {
-      todo.title = textTodo.value;
-      console.log(todo)
+
+const filterTodo = (e) => {
+  const todos = todosList.childNodes;
+  todos.forEach(function (todo) {
+    switch (e.target.value) {
+      case "all":
+        todo.style.display = "flex";
+        break;
+      case "completed":
+        if (todo.classList.contains("completed")) {
+          todo.style.display = "flex";
+        } else {
+          todo.style.display = "none";
+        }
+        break;
+      case "incomplete":
+        if (!todo.classList.contains("completed")) {
+          todo.style.display = "flex";
+        } else {
+          todo.style.display = "none";
+        }
+        break;
     }
   });
-  console.log(todosItem)
-  console.log(todoId)
-  todosProduction(todosItem)
-  localStorage.setItem("todos", JSON.stringify(todosItem));
-}
+};
+
+const addItems = () => {
+  let mainTodoIndex = todosItem.findIndex(
+    (todo) => todo.id === currentEditTodoId
+  );
+  console.log(mainTodoIndex);
+  if (mainTodoIndex !== -1) {
+    todosItem[mainTodoIndex].title = textTodo.value;
+    todosProduction(todosItem);
+    localStorage.setItem("todos", JSON.stringify(todosItem));
+    textTodo.value = "";
+  }
+};
+
+//............................................................................................................................................
+let currentEditTodoId;
+
 const editTodoItem = (todoId) => {
   let localStorageTodos = JSON.parse(localStorage.getItem("todos"));
   todosItem = localStorageTodos;
+
   todosItem.forEach((todo) => {
     if (todo.id === todoId) {
       textTodo.value = todo.title;
+      currentEditTodoId = todoId;
     }
   });
-  todosProduction(todosItem)
-  newTodoEditAddBtn.style.display="block"
+
+  todosProduction(todosItem);
+  newTodoEditAddBtn.style.display = "block";
   localStorage.setItem("todos", JSON.stringify(todosItem));
 };
+
 const editTodo = (todoId) => {
   let localStorageTodos = JSON.parse(localStorage.getItem("todos"));
   todosItem = localStorageTodos;
@@ -119,5 +151,6 @@ textTodo.addEventListener("keydown", (event) => {
   }
 });
 window.addEventListener("load", getLocalStorage);
+filterOption.addEventListener("change", filterTodo);
 addTodo.addEventListener("click", addTodos);
 clearTodo.addEventListener("click", clearTodos);
