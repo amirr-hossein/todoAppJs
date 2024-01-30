@@ -3,7 +3,9 @@ const addTodo = document.querySelector(".addButton");
 const clearTodo = document.querySelector(".clearButton");
 const todosList = document.querySelector(".todoList");
 const filterOption = document.querySelector(".filter-todo");
-
+const textEditTodo = document.querySelector(".editTodo");
+let newTodoEditAddBtn,
+  isEditTodo = false;
 let todosItem = [];
 const addTodos = () => {
   let todoValue = textTodo.value;
@@ -17,7 +19,6 @@ const addTodos = () => {
   localStorage.setItem("todos", JSON.stringify(todosItem));
   todosProduction(todosItem);
 };
-let newTodoEditAddBtn;
 const todosProduction = (todos) => {
   todosList.innerHTML = "";
   todos.forEach(function (todo) {
@@ -36,11 +37,21 @@ const todosProduction = (todos) => {
     newTodoEditBtn.setAttribute("onclick", "editTodoItem(" + todo.id + ")");
     newTodoEditAddBtn = document.createElement("button");
     newTodoEditAddBtn.innerHTML = "addItem";
-    newTodoEditAddBtn.style.display = "none";
     newTodoEditAddBtn.setAttribute("onclick", "addItems(" + todo.id + ")");
     if (todo.complete) {
       newTodoLiElem.className = "uncompleted well";
       newTodoCompleteBtn.innerHTML = "UnComplete";
+    }
+    if (isEditTodo && todo.id === currentEditTodoId) {
+      newTodoLabalElem.style.display = "none";
+      newTodoCompleteBtn.style.display = "none";
+      newTodoDeleteBtn.style.display = "none";
+      newTodoEditAddBtn.style.display = "inline-block";
+    } else {
+      newTodoLabalElem.style.display = "inline-block";
+      newTodoCompleteBtn.style.display = "inline-block";
+      newTodoDeleteBtn.style.display = "inline-block";
+      newTodoEditAddBtn.style.display = "none";
     }
     newTodoLiElem.append(
       newTodoLabalElem,
@@ -52,7 +63,6 @@ const todosProduction = (todos) => {
     todosList.append(newTodoLiElem);
   });
 };
-
 const filterTodo = (e) => {
   const todos = todosList.childNodes;
   todos.forEach(function (todo) {
@@ -77,36 +87,37 @@ const filterTodo = (e) => {
     }
   });
 };
-
+textEditTodo.style.display = "none";
 const addItems = () => {
-  let mainTodoIndex = todosItem.findIndex(
-    (todo) => todo.id === currentEditTodoId
-  );
-  console.log(mainTodoIndex);
-  if (mainTodoIndex !== -1) {
-    todosItem[mainTodoIndex].title = textTodo.value;
-    todosProduction(todosItem);
-    localStorage.setItem("todos", JSON.stringify(todosItem));
-    textTodo.value = "";
+  if (isEditTodo) {
+    let mainTodoIndex = todosItem.findIndex(
+      (todo) => todo.id === currentEditTodoId
+    );
+    if (mainTodoIndex !== -1) {
+      todosItem[mainTodoIndex].title = textEditTodo.value;
+      localStorage.setItem("todos", JSON.stringify(todosItem));
+      isEditTodo = false;
+      todosProduction(todosItem);
+    }
+    textEditTodo.style.display = "none";
+  } else {
+    addTodos();
   }
 };
-
-//............................................................................................................................................
 let currentEditTodoId;
-
 const editTodoItem = (todoId) => {
   let localStorageTodos = JSON.parse(localStorage.getItem("todos"));
   todosItem = localStorageTodos;
-
   todosItem.forEach((todo) => {
     if (todo.id === todoId) {
-      textTodo.value = todo.title;
       currentEditTodoId = todoId;
+      isEditTodo = true;
+      textEditTodo.value = todo.title;
     }
   });
-
+  textEditTodo.style.display = "inline-block";
+  newTodoEditAddBtn.style.display = "inline-block";
   todosProduction(todosItem);
-  newTodoEditAddBtn.style.display = "block";
   localStorage.setItem("todos", JSON.stringify(todosItem));
 };
 
