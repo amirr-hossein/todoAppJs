@@ -70,14 +70,14 @@ const filterTodo = (e) => {
       case "all":
         todo.style.display = "flex";
         break;
-      case "completed":
+      case "incomplete":
         if (todo.classList.contains("completed")) {
           todo.style.display = "flex";
         } else {
           todo.style.display = "none";
         }
         break;
-      case "incomplete":
+      case "completed":
         if (!todo.classList.contains("completed")) {
           todo.style.display = "flex";
         } else {
